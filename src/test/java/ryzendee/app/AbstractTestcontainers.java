@@ -7,8 +7,7 @@ import org.testcontainers.utility.DockerImageName;
 
 public abstract class AbstractTestcontainers {
 
-    //TODO: Изменить на 17-alpine
-    private static final String POSTGRES_IMAGE = "postgres:15.6";
+    private static final String POSTGRES_IMAGE = "postgres:16.9-alpine";
 
     @ServiceConnection
     protected static PostgreSQLContainer<?> postgresContainer =
