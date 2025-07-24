@@ -26,6 +26,13 @@
             </column>
         </createTable>
 
+        <loadData tableName="industry"
+                  file="classpath:/db/data/industry.csv"
+                  separator=";">
+            <column name="id" type="int"/>
+            <column name="name" type="string"/>
+        </loadData>
+
     </changeSet>
 
 </databaseChangeLog>

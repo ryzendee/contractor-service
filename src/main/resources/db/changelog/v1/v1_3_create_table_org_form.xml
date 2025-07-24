@@ -13,7 +13,7 @@
         </preConditions>
 
         <createTable tableName="org_form">
-            <column name="id" type="int" autoIncrement="true">
+            <column name="id" type="serial">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
 
@@ -25,6 +25,13 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+
+        <loadData tableName="org_form"
+                  file="classpath:/db/data/org_form.csv"
+                  separator=";">
+            <column name="id" type="int"/>
+            <column name="name" type="string"/>
+        </loadData>
 
     </changeSet>
 
