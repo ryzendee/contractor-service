@@ -23,13 +23,32 @@ public class IndustryRepositoryImpl implements IndustryRepository {
     private final IndustryDetailsRowMapper industryDetailsRowMapper;
 
     private static final String BASE_SELECT_FOR_ACTIVE = """
-                SELECT 
-                    i.id as industry_id, 
-                    i.name as industry_name, 
-                    i.is_active as industry_is_active 
-                FROM industry i
-                WHERE i.is_active = true
-            """;
+        SELECT 
+            i.id as industry_id, 
+            i.name as industry_name, 
+            i.is_active as industry_is_active 
+        FROM industry i
+        WHERE i.is_active = true
+        """;
+
+    private static final String SQL_FIND_BY_ID = BASE_SELECT_FOR_ACTIVE + " AND i.id = :id";
+
+    private static final String SQL_DELETE_BY_ID = """
+        UPDATE industry
+        SET is_active = false 
+        WHERE id = :id
+        """;
+
+    private static final String SQL_INSERT = """
+        INSERT INTO industry (name)
+        VALUES (:name)
+        """;
+
+    private static final String SQL_UPDATE = """
+        UPDATE industry 
+        SET name = :name 
+        WHERE id = :id
+        """;
 
     @Override
     public Industry save(Industry industry) {
@@ -45,20 +64,14 @@ public class IndustryRepositoryImpl implements IndustryRepository {
 
     @Override
     public Optional<IndustryDetails> findById(Integer id) {
-        String sql = BASE_SELECT_FOR_ACTIVE + " AND i.id = :id";
-        return jdbcTemplate.query(sql, Map.of("id", id), industryDetailsRowMapper)
+        return jdbcTemplate.query(SQL_FIND_BY_ID, Map.of("id", id), industryDetailsRowMapper)
                 .stream()
                 .findFirst();
     }
 
     @Override
     public boolean deleteById(Integer id) {
-        String sql = """
-                UPDATE industry
-                SET is_active = false 
-                WHERE id = :id
-                """;
-        int updated = jdbcTemplate.update(sql, Map.of("id", id));
+        int updated = jdbcTemplate.update(SQL_DELETE_BY_ID, Map.of("id", id));
         return updated > 0;
     }
 
@@ -68,27 +81,16 @@ public class IndustryRepositoryImpl implements IndustryRepository {
     }
 
     private Number insert(Industry industry) {
-        String sql = """
-                    INSERT INTO industry (name)
-                    VALUES (:name)
-                """;
-
         MapSqlParameterSource params = getParams(industry);
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(sql, params, keyHolder, new String[]{"id"});
+        jdbcTemplate.update(SQL_INSERT, params, keyHolder, new String[]{"id"});
         return keyHolder.getKey();
     }
 
     private void update(Industry industry) {
-        String sql = """
-                UPDATE industry 
-                SET name = name 
-                WHERE id = :id
-                """;
-
         MapSqlParameterSource params = getParams(industry);
         params.addValue("id", industry.getId());
-        jdbcTemplate.update(sql, params);
+        jdbcTemplate.update(SQL_UPDATE, params);
     }
 
     private MapSqlParameterSource getParams(Industry industry) {

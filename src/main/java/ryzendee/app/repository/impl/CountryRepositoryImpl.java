@@ -20,47 +20,48 @@ public class CountryRepositoryImpl implements CountryRepository {
     private final CountryDetailsRowMapper countryDetailsRowMapper;
 
     private static final String BASE_SELECT_FOR_ACTIVE = """
-                SELECT 
-                    c.id as country_id, 
-                    c.name as country_name, 
-                    c.is_active as country_is_active 
-                FROM country c
-                WHERE c.is_active = true
-            """;
+        SELECT 
+            c.id as country_id, 
+            c.name as country_name, 
+            c.is_active as country_is_active 
+        FROM country c
+        WHERE c.is_active = true
+        """;
+
+    private static final String SQL_INSERT_OR_UPDATE = """
+        INSERT INTO country (id, name)
+        VALUES (:id, :name)
+        ON CONFLICT (id) DO UPDATE SET
+            name = EXCLUDED.name
+        """;
+
+    private static final String SQL_FIND_BY_ID = BASE_SELECT_FOR_ACTIVE + " AND c.id = :id";
+
+    private static final String SQL_DELETE_BY_ID = """
+        UPDATE country 
+        SET is_active = false 
+        WHERE id = :id
+        """;
 
     @Override
     public Country save(Country country) {
-        String sql = """
-                    INSERT INTO country (id, name)
-                    VALUES (:id, :name)
-                    ON CONFLICT (id) DO UPDATE SET
-                        name = EXCLUDED.name
-                """;
-
-        jdbcTemplate.update(sql, Map.of(
+        jdbcTemplate.update(SQL_INSERT_OR_UPDATE, Map.of(
                 "id", country.getId(),
                 "name", country.getName()
         ));
-
         return country;
     }
 
     @Override
     public Optional<CountryDetails> findById(String id) {
-        String sql = BASE_SELECT_FOR_ACTIVE + " AND c.id = :id";
-        return jdbcTemplate.query(sql, Map.of("id", id), countryDetailsRowMapper)
+        return jdbcTemplate.query(SQL_FIND_BY_ID, Map.of("id", id), countryDetailsRowMapper)
                 .stream()
                 .findFirst();
     }
 
     @Override
     public boolean deleteById(String id) {
-        String sql = """
-                UPDATE country 
-                SET is_active = false 
-                WHERE id = :id
-                """;
-        int updated = jdbcTemplate.update(sql, Map.of("id", id));
+        int updated = jdbcTemplate.update(SQL_DELETE_BY_ID, Map.of("id", id));
         return updated > 0;
     }
 
@@ -68,5 +69,4 @@ public class CountryRepositoryImpl implements CountryRepository {
     public List<CountryDetails> findAll() {
         return jdbcTemplate.query(BASE_SELECT_FOR_ACTIVE, countryDetailsRowMapper);
     }
-
 }

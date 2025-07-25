@@ -19,6 +19,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OrgFormRepositoryImpl implements OrgFormRepository {
 
+    private final NamedParameterJdbcTemplate jdbcTemplate;
+    private final OrgFormDetailsRowMapper orgFormDetailsRowMapper;
+
     private static final String BASE_SELECT_FOR_ACTIVE = """
             SELECT 
                 o.id as org_form_id, 
@@ -28,8 +31,24 @@ public class OrgFormRepositoryImpl implements OrgFormRepository {
             WHERE o.is_active = true
             """;
 
-    private final NamedParameterJdbcTemplate jdbcTemplate;
-    private final OrgFormDetailsRowMapper orgFormDetailsRowMapper;
+    private static final String SQL_FIND_BY_ID = BASE_SELECT_FOR_ACTIVE + " AND o.id = :id";
+
+    private static final String SQL_DELETE_BY_ID = """
+            UPDATE org_form 
+            SET is_active = false 
+            WHERE id = :id
+            """;
+
+    private static final String SQL_INSERT = """
+            INSERT INTO org_form (name)
+            VALUES (:name)
+            """;
+
+    private static final String SQL_UPDATE = """
+            UPDATE org_form 
+            SET name = :name
+            WHERE id = :id
+            """;
 
     @Override
     public OrgForm save(OrgForm orgForm) {
@@ -45,20 +64,13 @@ public class OrgFormRepositoryImpl implements OrgFormRepository {
 
     @Override
     public Optional<OrgFormDetails> findById(Integer id) {
-        String sql = BASE_SELECT_FOR_ACTIVE + " AND o.id = :id";
-
-        List<OrgFormDetails> result = jdbcTemplate.query(sql, Map.of("id", id), orgFormDetailsRowMapper);
+        List<OrgFormDetails> result = jdbcTemplate.query(SQL_FIND_BY_ID, Map.of("id", id), orgFormDetailsRowMapper);
         return result.stream().findFirst();
     }
 
     @Override
     public boolean deleteById(Integer id) {
-        String sql = """
-                UPDATE org_form 
-                SET is_active = false 
-                WHERE id = :id
-                """;
-        int updated = jdbcTemplate.update(sql, Map.of("id", id));
+        int updated = jdbcTemplate.update(SQL_DELETE_BY_ID, Map.of("id", id));
         return updated > 0;
     }
 
@@ -68,27 +80,16 @@ public class OrgFormRepositoryImpl implements OrgFormRepository {
     }
 
     private Number insert(OrgForm orgForm) {
-        String sql = """
-                    INSERT INTO org_form (name)
-                    VALUES (:name)
-                """;
-
         MapSqlParameterSource params = getParams(orgForm);
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(sql, params, keyHolder, new String[]{"id"});
+        jdbcTemplate.update(SQL_INSERT, params, keyHolder, new String[]{"id"});
         return keyHolder.getKey();
     }
 
     private void update(OrgForm orgForm) {
-        String sql = """
-                    UPDATE org_form 
-                    SET name = :name
-                    WHERE id = :id
-                """;
-
         MapSqlParameterSource params = getParams(orgForm);
         params.addValue("id", orgForm.getId());
-        jdbcTemplate.update(sql, params);
+        jdbcTemplate.update(SQL_UPDATE, params);
     }
 
     private MapSqlParameterSource getParams(OrgForm orgForm) {

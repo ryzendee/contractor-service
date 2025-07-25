@@ -21,82 +21,89 @@ public class ContractorRepositoryImpl implements ContractorRepository {
     private final ContractorDetailsRowMapper contractorDetailsRowMapper;
 
     private static final String BASE_SELECT_FOR_ACTIVE_WITH_JOINS = """
-                SELECT 
-                    c.id AS contractor_id,
-                    c.parent_id AS contractor_parent_id,
-                    c.name AS contractor_name,
-                    c.name_full AS contractor_name_full,
-                    c.inn AS contractor_inn,
-                    c.ogrn AS contractor_ogrn,
-                    co.id AS country_id,
-                    co.name AS country_name,
-                    i.id AS industry_id,
-                    i.name AS industry_name,
-                    o.id AS org_form_id,
-                    o.name AS org_form_name,
-                    c.create_date AS contractor_create_date,
-                    c.modify_date AS contractor_modify_date,
-                    c.create_user_id AS contractor_create_user_id,
-                    c.modify_user_id AS contractor_modify_user_id,
-                    c.is_active AS contractor_is_active
-                FROM contractor c
-                LEFT JOIN country co ON c.country = co.id
-                LEFT JOIN industry i ON c.industry = i.id
-                LEFT JOIN org_form o ON c.org_form = o.id
-                WHERE c.is_active = true
-            """;
+        SELECT 
+            c.id AS contractor_id,
+            c.parent_id AS contractor_parent_id,
+            c.name AS contractor_name,
+            c.name_full AS contractor_name_full,
+            c.inn AS contractor_inn,
+            c.ogrn AS contractor_ogrn,
+            co.id AS country_id,
+            co.name AS country_name,
+            i.id AS industry_id,
+            i.name AS industry_name,
+            o.id AS org_form_id,
+            o.name AS org_form_name,
+            c.create_date AS contractor_create_date,
+            c.modify_date AS contractor_modify_date,
+            c.create_user_id AS contractor_create_user_id,
+            c.modify_user_id AS contractor_modify_user_id,
+            c.is_active AS contractor_is_active
+        FROM contractor c
+        LEFT JOIN country co ON c.country = co.id
+        LEFT JOIN industry i ON c.industry = i.id
+        LEFT JOIN org_form o ON c.org_form = o.id
+        WHERE c.is_active = true
+        """;
+
+    private static final String SQL_INSERT_OR_UPDATE = """
+        INSERT INTO contractor (id, parent_id, name, name_full, inn, ogrn,
+                                country, industry, org_form,
+                                create_user_id, modify_user_id)
+        VALUES (:id, :parentId, :name, :nameFull, :inn, :ogrn,
+                :country, :industry, :orgForm,
+                :createUserId, :modifyUserId)
+        ON CONFLICT (id) DO UPDATE SET
+            parent_id = EXCLUDED.parent_id,
+            name = EXCLUDED.name,
+            name_full = EXCLUDED.name_full,
+            inn = EXCLUDED.inn,
+            ogrn = EXCLUDED.ogrn,
+            country = EXCLUDED.country,
+            industry = EXCLUDED.industry,
+            org_form = EXCLUDED.org_form,
+            modify_date = now(),
+            modify_user_id = EXCLUDED.modify_user_id,
+            is_active = EXCLUDED.is_active
+        """;
+
+    private static final String SQL_DELETE_BY_ID = """
+        UPDATE contractor
+        SET is_active = false,
+            modify_date = now()
+        WHERE id = :id
+        """;
+
+    private static final String SQL_FIND_BY_ID = BASE_SELECT_FOR_ACTIVE_WITH_JOINS + " AND c.id = :id";
+
+    private static final String SQL_ORDER_LIMIT_OFFSET = " ORDER BY c.id LIMIT :limit OFFSET :offset";
 
     @Override
     public Contractor save(Contractor c) {
-        String sql = """
-                INSERT INTO contractor (id, parent_id, name, name_full, inn, ogrn,
-                                        country, industry, org_form,
-                                        create_user_id, modify_user_id)
-                VALUES (:id, :parentId, :name, :nameFull, :inn, :ogrn,
-                        :country, :industry, :orgForm,
-                        :createUserId, :modifyUserId)
-                ON CONFLICT (id) DO UPDATE SET
-                    parent_id = EXCLUDED.parent_id,
-                    name = EXCLUDED.name,
-                    name_full = EXCLUDED.name_full,
-                    inn = EXCLUDED.inn,
-                    ogrn = EXCLUDED.ogrn,
-                    country = EXCLUDED.country,
-                    industry = EXCLUDED.industry,
-                    org_form = EXCLUDED.org_form,
-                    modify_date = now(),
-                    modify_user_id = EXCLUDED.modify_user_id,
-                    is_active = EXCLUDED.is_active
-            """;
-        jdbcTemplate.update(sql, contractorParams(c));
+        jdbcTemplate.update(SQL_INSERT_OR_UPDATE, contractorParams(c));
         return c;
     }
 
     @Override
     public Optional<ContractorDetails> findDetailsById(String id) {
-        String sql = BASE_SELECT_FOR_ACTIVE_WITH_JOINS + " AND c.id = :id";
-        return jdbcTemplate.query(sql, Map.of("id", id), contractorDetailsRowMapper)
+        return jdbcTemplate.query(SQL_FIND_BY_ID, Map.of("id", id), contractorDetailsRowMapper)
                 .stream()
                 .findFirst();
     }
 
     @Override
     public boolean deleteById(String id) {
-        String sql = "UPDATE contractor SET is_active = false, modify_date = now() WHERE id = :id";
-        int updated = jdbcTemplate.update(sql, Map.of("id", id));
+        int updated = jdbcTemplate.update(SQL_DELETE_BY_ID, Map.of("id", id));
         return updated > 0;
     }
 
     @Override
     public List<ContractorDetails> findAllDetailsByFilter(ContractorSearchFilter filter) {
         StringBuilder sql = new StringBuilder(BASE_SELECT_FOR_ACTIVE_WITH_JOINS);
-
         Map<String, Object> params = buildFilterParams(filter, sql);
-
-        sql.append(" ORDER BY c.id LIMIT :limit OFFSET :offset");
+        sql.append(SQL_ORDER_LIMIT_OFFSET);
         params.put("limit", filter.size());
         params.put("offset", filter.page() * filter.size());
-
         return jdbcTemplate.query(sql.toString(), params, contractorDetailsRowMapper);
     }
 
