@@ -1,5 +1,6 @@
 package ryzendee.app.dto.industry;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 /**
@@ -9,5 +10,13 @@ import lombok.Builder;
  * @author Dmitry Ryazantsev
  */
 @Builder
-public record IndustrySaveRequest(Integer id, String name) {
+@Schema(description = "DTO для создания или обновления индустриального кода")
+public record IndustrySaveRequest(
+
+        @Schema(description = "Идентификатор индустриального кода", example = "101")
+        Integer id,
+
+        @Schema(description = "Название индустриального кода", example = "Промышленное производство")
+        String name
+) {
 }

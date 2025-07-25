@@ -1,5 +1,6 @@
 package ryzendee.app.dto.country;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 /**
@@ -9,5 +10,13 @@ import lombok.Builder;
  * @author Dmitry Ryazantsev
  */
 @Builder
-public record CountrySaveRequest(String id, String name) {
+@Schema(description = "Запрос на создание или обновление информации о стране")
+public record CountrySaveRequest(
+
+        @Schema(description = "Идентификатор страны", example = "RU")
+        String id,
+
+        @Schema(description = "Название страны", example = "Россия")
+        String name
+) {
 }

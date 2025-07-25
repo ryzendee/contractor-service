@@ -1,5 +1,6 @@
 package ryzendee.app.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 /**
@@ -8,5 +9,9 @@ import java.util.List;
  *
  * @author Dmitry Ryazantsev
  */
-public record ErrorDetails(List<String> messages) {
+@Schema(description = "DTO с информацией об ошибках")
+public record ErrorDetails(
+        @Schema(description = "Список сообщений об ошибках", example = "[\"Ошибка 1\", \"Ошибка 2\"]")
+        List<String> messages
+) {
 }
