@@ -1,11 +1,13 @@
 package ryzendee.app.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import ryzendee.starter.jwt.auth.AbstractReferenceAccessRules;
 import ryzendee.starter.jwt.decoder.AuthRole;
 
-@Component
+@Slf4j
+@Component("contractorAccessRules")
 public class ContractorAccessRules extends AbstractReferenceAccessRules {
 
     private static final String ALLOWED_COUNTRY = "RUS";
