@@ -1,4 +1,4 @@
-package ryzendee.app.rest.api;
+package ryzendee.app.rest.api.base;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,7 +17,10 @@ public interface IndustryApi {
 
     @Operation(
             summary = "Получение списка индустриальных кодов",
-            description = "Возвращает список всех активных индустриальных кодов"
+            description = "Возвращает список всех активных индустриальных кодов",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешно возвращает список активных индустриальных кодов")
+            }
     )
     @GetMapping("/all")
     List<IndustryDetails> getAll();

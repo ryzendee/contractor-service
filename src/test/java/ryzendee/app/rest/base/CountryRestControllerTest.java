@@ -1,4 +1,4 @@
-package ryzendee.app.rest;
+package ryzendee.app.rest.base;
 
 import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -6,30 +6,36 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ryzendee.app.dto.orgform.OrgFormSaveRequest;
+import ryzendee.app.config.SecurityConfiguration;
+import ryzendee.app.dto.country.CountrySaveRequest;
 import ryzendee.app.exception.ResourceNotFoundException;
-import ryzendee.app.service.OrgFormService;
+import ryzendee.app.rest.impl.base.CountryRestController;
+import ryzendee.app.service.CountryService;
+import ryzendee.starter.jwt.config.JwtSecurityAutoConfiguration;
 
 import static org.mockito.Mockito.*;
-import static ryzendee.app.testutils.FixtureUtil.orgFormSaveRequestFixture;
+import static ryzendee.app.testutils.FixtureUtil.countrySaveRequestFixture;
 
-@WebMvcTest(OrgFormRestController.class)
-public class OrgFormRestControllerTest {
+@AutoConfigureMockMvc(addFilters = false)
+@WebMvcTest(CountryRestController.class)
+public class CountryRestControllerTest {
 
-    private static final String BASE_URI = "/org-form";
+    private static final String BASE_URI = "/country";
 
     @MockitoBean
-    private OrgFormService orgFormService;
+    private CountryService countryService;
 
     @Autowired
     private MockMvc mockMvc;
 
     private MockMvcRequestSpecification request;
-    private Integer orgFormId;
+    private String countryId;
 
     @BeforeEach
     void setUp() {
@@ -39,7 +45,7 @@ public class OrgFormRestControllerTest {
 
         request = RestAssuredMockMvc.given()
                 .contentType(ContentType.JSON);
-        orgFormId = 1;
+        countryId = "id";
     }
 
     @Test
@@ -48,61 +54,60 @@ public class OrgFormRestControllerTest {
                 .then()
                 .status(HttpStatus.OK);
 
-        verify(orgFormService).getAll();
+        verify(countryService).getAll();
     }
 
     @Test
-    void getById_existsOrgForm_statusOk() {
-        request.get("/{id}", orgFormId)
+    void getById_existsCountry_statusOk() {
+        request.get("/{id}", countryId)
                 .then()
                 .status(HttpStatus.OK);
 
-        verify(orgFormService).getById(orgFormId);
+        verify(countryService).getById(countryId);
     }
 
     @Test
-    void getById_nonExistsOrgForm_statusNotFound() {
+    void getById_nonExistsCountry_statusNotFound() {
         doThrow(ResourceNotFoundException.class)
-                .when(orgFormService).getById(orgFormId);
+                .when(countryService).getById(countryId);
 
-        request.get("/{id}", orgFormId)
+        request.get("/{id}", countryId)
                 .then()
                 .status(HttpStatus.NOT_FOUND);
 
-        verify(orgFormService).getById(orgFormId);
+        verify(countryService).getById(countryId);
     }
 
     @Test
     void saveOrUpdate_validRequest_statusOk() {
-        OrgFormSaveRequest requestDto = orgFormSaveRequestFixture();
+        CountrySaveRequest saveRequest = countrySaveRequestFixture();
 
-        request.body(requestDto)
+        request.body(saveRequest)
                 .put("/save")
                 .then()
                 .status(HttpStatus.OK);
 
-        verify(orgFormService).saveOrUpdate(requestDto);
+        verify(countryService).saveOrUpdate(saveRequest);
     }
 
     @Test
-    void deleteById_existsOrgForm_statusNoContent() {
-        request.delete("/delete/{id}", orgFormId)
+    void deleteById_existsCountry_statusNoContent() {
+        request.delete("/delete/{id}", countryId)
                 .then()
                 .status(HttpStatus.NO_CONTENT);
 
-        verify(orgFormService).deleteById(orgFormId);
+        verify(countryService).deleteById(countryId);
     }
 
     @Test
-    void deleteById_nonExistsOrgForm_statusNotFound() {
+    void deleteById_nonExistsCountry_statusNotFound() {
         doThrow(ResourceNotFoundException.class)
-                .when(orgFormService).deleteById(orgFormId);
+                .when(countryService).deleteById(countryId);
 
-        request.delete("/delete/{id}", orgFormId)
+        request.delete("/delete/{id}", countryId)
                 .then()
                 .status(HttpStatus.NOT_FOUND);
 
-        verify(orgFormService).deleteById(orgFormId);
+        verify(countryService).deleteById(countryId);
     }
 }
-

@@ -1,4 +1,4 @@
-package ryzendee.app.rest.api;
+package ryzendee.app.rest.api.base;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,7 +17,10 @@ public interface OrgFormApi {
 
     @Operation(
             summary = "Получение списка организационных форм",
-            description = "Возвращает список всех активных организационных форм"
+            description = "Возвращает список всех активных организационных форм",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешно возвращает список организационных форм")
+            }
     )
     @GetMapping("/all")
     List<OrgFormDetails> getAll();

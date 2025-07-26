@@ -1,4 +1,4 @@
-package ryzendee.app.rest;
+package ryzendee.app.rest.base;
 
 import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -6,30 +6,33 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ryzendee.app.dto.industry.IndustrySaveRequest;
+import ryzendee.app.dto.orgform.OrgFormSaveRequest;
 import ryzendee.app.exception.ResourceNotFoundException;
-import ryzendee.app.service.IndustryService;
+import ryzendee.app.rest.impl.base.OrgFormRestController;
+import ryzendee.app.service.OrgFormService;
 
 import static org.mockito.Mockito.*;
-import static ryzendee.app.testutils.FixtureUtil.industrySaveRequestFixture;
+import static ryzendee.app.testutils.FixtureUtil.orgFormSaveRequestFixture;
 
-@WebMvcTest(IndustryRestController.class)
-public class IndustryRestControllerTest {
+@AutoConfigureMockMvc(addFilters = false)
+@WebMvcTest(OrgFormRestController.class)
+public class OrgFormRestControllerTest {
 
-    private static final String BASE_URI = "/industry";
+    private static final String BASE_URI = "/org-form";
 
     @MockitoBean
-    private IndustryService industryService;
+    private OrgFormService orgFormService;
 
     @Autowired
     private MockMvc mockMvc;
 
     private MockMvcRequestSpecification request;
-    private Integer industryId;
+    private Integer orgFormId;
 
     @BeforeEach
     void setUp() {
@@ -39,7 +42,7 @@ public class IndustryRestControllerTest {
 
         request = RestAssuredMockMvc.given()
                 .contentType(ContentType.JSON);
-        industryId = 1;
+        orgFormId = 1;
     }
 
     @Test
@@ -48,60 +51,61 @@ public class IndustryRestControllerTest {
                 .then()
                 .status(HttpStatus.OK);
 
-        verify(industryService).getAll();
+        verify(orgFormService).getAll();
     }
 
     @Test
-    void getById_existsIndustry_statusOk() {
-        request.get("/{id}", industryId)
+    void getById_existsOrgForm_statusOk() {
+        request.get("/{id}", orgFormId)
                 .then()
                 .status(HttpStatus.OK);
 
-        verify(industryService).getById(industryId);
+        verify(orgFormService).getById(orgFormId);
     }
 
     @Test
-    void getById_nonExistsIndustry_statusNotFound() {
+    void getById_nonExistsOrgForm_statusNotFound() {
         doThrow(ResourceNotFoundException.class)
-                .when(industryService).getById(industryId);
+                .when(orgFormService).getById(orgFormId);
 
-        request.get("/{id}", industryId)
+        request.get("/{id}", orgFormId)
                 .then()
                 .status(HttpStatus.NOT_FOUND);
 
-        verify(industryService).getById(industryId);
+        verify(orgFormService).getById(orgFormId);
     }
 
     @Test
     void saveOrUpdate_validRequest_statusOk() {
-        IndustrySaveRequest requestDto = industrySaveRequestFixture();
+        OrgFormSaveRequest requestDto = orgFormSaveRequestFixture();
 
         request.body(requestDto)
                 .put("/save")
                 .then()
                 .status(HttpStatus.OK);
 
-        verify(industryService).saveOrUpdate(requestDto);
+        verify(orgFormService).saveOrUpdate(requestDto);
     }
 
     @Test
-    void deleteById_existsIndustry_statusNoContent() {
-        request.delete("/delete/{id}", industryId)
+    void deleteById_existsOrgForm_statusNoContent() {
+        request.delete("/delete/{id}", orgFormId)
                 .then()
                 .status(HttpStatus.NO_CONTENT);
 
-        verify(industryService).deleteById(industryId);
+        verify(orgFormService).deleteById(orgFormId);
     }
 
     @Test
-    void deleteById_nonExistsIndustry_statusNotFound() {
+    void deleteById_nonExistsOrgForm_statusNotFound() {
         doThrow(ResourceNotFoundException.class)
-                .when(industryService).deleteById(industryId);
+                .when(orgFormService).deleteById(orgFormId);
 
-        request.delete("/delete/{id}", industryId)
+        request.delete("/delete/{id}", orgFormId)
                 .then()
                 .status(HttpStatus.NOT_FOUND);
 
-        verify(industryService).deleteById(industryId);
+        verify(orgFormService).deleteById(orgFormId);
     }
 }
+

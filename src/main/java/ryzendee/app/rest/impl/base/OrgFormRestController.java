@@ -1,10 +1,11 @@
-package ryzendee.app.rest;
+package ryzendee.app.rest.impl.base;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ryzendee.app.dto.orgform.OrgFormDetails;
 import ryzendee.app.dto.orgform.OrgFormSaveRequest;
-import ryzendee.app.rest.api.OrgFormApi;
+import ryzendee.app.rest.api.base.OrgFormApi;
 import ryzendee.app.service.OrgFormService;
 
 import java.util.List;
