@@ -2,6 +2,7 @@ package ryzendee.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ryzendee.app.dto.orgform.OrgFormDetails;
 import ryzendee.app.dto.orgform.OrgFormSaveRequest;
 import ryzendee.app.exception.ResourceNotFoundException;
@@ -19,6 +20,7 @@ public class OrgFormServiceImpl implements OrgFormService {
     private final OrgFormAppMapper orgFormAppMapper;
     private final OrgFormRepository orgFormRepository;
 
+    @Transactional
     @Override
     public OrgFormDetails saveOrUpdate(OrgFormSaveRequest request) {
         OrgForm orgForm = orgFormAppMapper.toModel(request);
@@ -26,12 +28,14 @@ public class OrgFormServiceImpl implements OrgFormService {
         return orgFormAppMapper.toDetails(orgForm);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public OrgFormDetails getById(Integer id) {
         return orgFormRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("OrgForm with given id does not exist"));
     }
 
+    @Transactional
     @Override
     public void deleteById(Integer id) {
         if (!orgFormRepository.deleteById(id)) {
@@ -39,6 +43,7 @@ public class OrgFormServiceImpl implements OrgFormService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<OrgFormDetails> getAll() {
         return orgFormRepository.findAll();

@@ -1,4 +1,4 @@
-package ryzendee.app.rest.api;
+package ryzendee.app.rest.api.ui;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,13 +11,17 @@ import ryzendee.app.dto.orgform.OrgFormSaveRequest;
 
 import java.util.List;
 
-@RequestMapping("/org-form")
+@RequestMapping("/ui/org-form")
 @Tag(name = "API организационных форм", description = "Операции, связанные с управлением организационными формами")
-public interface OrgFormApi {
+public interface OrgFormUiApi {
 
     @Operation(
             summary = "Получение списка организационных форм",
-            description = "Возвращает список всех активных организационных форм"
+            description = "Возвращает список всех активных организационных форм",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешно возвращает список организационных форм"),
+                    @ApiResponse(responseCode = "403", description = "Доступ запрещён")
+            }
     )
     @GetMapping("/all")
     List<OrgFormDetails> getAll();
@@ -27,6 +31,7 @@ public interface OrgFormApi {
             description = "Возвращает информацию об организационной форме со всей связанной с ней информацией",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Организационная форма найдена и возвращена"),
+                    @ApiResponse(responseCode = "403", description = "Доступ запрещён"),
                     @ApiResponse(responseCode = "404", description = "Организационная форма с указанным id не найдена")
             }
     )
@@ -38,7 +43,8 @@ public interface OrgFormApi {
             description = "Создает новую организационную форму или полностью обновляет существующую",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Организационная форма успешно создана или обновлена"),
-                    @ApiResponse(responseCode = "400", description = "Некорректные входные данные")
+                    @ApiResponse(responseCode = "400", description = "Некорректные входные данные"),
+                    @ApiResponse(responseCode = "403", description = "Доступ запрещён")
             }
     )
     @PutMapping("/save")
@@ -49,10 +55,12 @@ public interface OrgFormApi {
             description = "Логически удаляет организационную форму, переводя её в неактивное состояние",
             responses = {
                     @ApiResponse(responseCode = "204", description = "Организационная форма успешно удалена"),
+                    @ApiResponse(responseCode = "403", description = "Доступ запрещён"),
                     @ApiResponse(responseCode = "404", description = "Организационная форма с указанным id не найдена")
             }
     )
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/delete/{id}")
     void deleteById(@PathVariable("id") Integer id);
+
 }

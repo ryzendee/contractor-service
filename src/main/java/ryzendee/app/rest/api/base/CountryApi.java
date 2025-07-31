@@ -1,4 +1,4 @@
-package ryzendee.app.rest.api;
+package ryzendee.app.rest.api.base;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,7 +17,11 @@ public interface CountryApi {
 
     @Operation(
             summary = "Получение списка стран",
-            description = "Возвращает список стран"
+            description = "Возвращает список стран",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешно возвращает список стран"),
+                    @ApiResponse(responseCode = "403", description = "Доступ запрещён")
+            }
     )
     @GetMapping("/all")
     List<CountryDetails> getAll();
@@ -43,7 +47,6 @@ public interface CountryApi {
     )
     @PutMapping("/save")
     CountryDetails saveOrUpdate(@Valid @RequestBody CountrySaveRequest request);
-
 
     @Operation(
             summary = "Удалить страну по id",
