@@ -12,7 +12,6 @@ import ryzendee.app.service.OrgFormService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ui/org-form")
 @RequiredArgsConstructor
 public class OrgFormUiRestController implements OrgFormUiApi {
 

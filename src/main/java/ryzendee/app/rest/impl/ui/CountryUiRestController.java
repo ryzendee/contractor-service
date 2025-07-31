@@ -12,7 +12,6 @@ import ryzendee.app.service.CountryService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ui/country")
 @RequiredArgsConstructor
 public class CountryUiRestController implements CountryUiApi {
 

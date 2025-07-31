@@ -12,7 +12,6 @@ import ryzendee.app.service.IndustryService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ui/industry")
 @RequiredArgsConstructor
 public class IndustryUiRestController implements IndustryUiApi {
 
