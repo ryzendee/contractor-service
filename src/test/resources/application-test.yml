@@ -1,0 +1,8 @@
+spring:
+  audit:
+    kafka:
+      enabled: false
+    file:
+      enabled: false
+    console:
+      enabled: false

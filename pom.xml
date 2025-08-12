@@ -27,6 +27,7 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <rest-assured.version>5.5.1</rest-assured.version>
         <spring-security-jwt-starter.version>0.0.1-SNAPSHOT</spring-security-jwt-starter.version>
+        <spring-stater-audit.version>0.0.1-SNAPSHOT</spring-stater-audit.version>
     </properties>
     <dependencies>
         <dependency>
@@ -116,6 +117,11 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ryzendee</groupId>
+            <artifactId>spring-boot-starter-audit</artifactId>
+            <version>${spring-stater-audit.version}</version>
         </dependency>
     </dependencies>
 
