@@ -11,6 +11,7 @@ import ryzendee.app.model.Contractor;
 import ryzendee.app.model.Country;
 import ryzendee.app.model.Industry;
 import ryzendee.app.model.OrgForm;
+import ryzendee.app.model.Outbox;
 import ryzendee.app.repository.ContractorRepository;
 import ryzendee.app.testutils.DatabaseUtil;
 
@@ -54,6 +55,7 @@ public class ContractorServiceIT extends AbstractServiceIT {
         ContractorDetails saved = databaseUtil.findContractorById(request.id());
         assertThat(saved).isNotNull();
         assertContractorMatchesRequest(saved, request);
+        assertThatOutboxSaved();
     }
 
     @Test
@@ -71,6 +73,7 @@ public class ContractorServiceIT extends AbstractServiceIT {
         ContractorDetails updated = databaseUtil.findContractorById(request.id());
         assertThat(updated).isNotNull();
         assertContractorMatchesRequest(updated, request);
+        assertThatOutboxSaved();
     }
 
     @Test
@@ -110,6 +113,12 @@ public class ContractorServiceIT extends AbstractServiceIT {
         assertThat(actual.country().id()).isEqualTo(expected.country());
         assertThat(actual.industry().id()).isEqualTo(expected.industry());
         assertThat(actual.orgForm().id()).isEqualTo(expected.orgForm());
+    }
+    
+    private void assertThatOutboxSaved() {
+        int limit = 50;
+        Outbox outbox = databaseUtil.findAllPendingOutboxes(limit).getFirst();
+        assertThat(outbox).isNotNull();
     }
 
     private Contractor insertTestData() {
