@@ -14,6 +14,13 @@ spring:
       ddl-auto: validate
   liquibase:
     enabled: true
+  audit:
+    kafka:
+      enabled: true
+    file:
+      enabled: true
+    console:
+      enabled: true
 
 jwt:
   secret: qO8zR9Avpm1FLzXzo1kS9OytZ+QjzUpgGzkhEwo6hH4=

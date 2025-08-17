@@ -29,6 +29,7 @@
         <spring-security-jwt-starter.version>0.0.1-SNAPSHOT</spring-security-jwt-starter.version>
         <common.version>1.0-SNAPSHOT</common.version>
         <shedlock-spring.version>6.9.2</shedlock-spring.version>
+        <spring-stater-audit.version>0.0.1-SNAPSHOT</spring-stater-audit.version>
     </properties>
     <dependencies>
         <dependency>
@@ -151,6 +152,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ryzendee</groupId>
+            <artifactId>spring-boot-starter-audit</artifactId>
+            <version>${spring-stater-audit.version}</version>
         </dependency>
     </dependencies>
 
