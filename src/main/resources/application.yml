@@ -19,3 +19,14 @@ jwt:
   secret: qO8zR9Avpm1FLzXzo1kS9OytZ+QjzUpgGzkhEwo6hH4=
   issuer: fintech-application
   expiration: 3600000 # 1 час
+
+rabbit:
+  contractor:
+    exchange: contractors_contractor_exchange
+    routing-key: deals_contractor_routing
+
+outbox:
+  scheduler:
+    fixed-delay-ms: 5000
+    initial-delay-ms: 1000
+    batch-size: 50
