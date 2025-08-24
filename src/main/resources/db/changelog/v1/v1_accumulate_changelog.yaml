@@ -7,3 +7,7 @@ databaseChangeLog:
       file: db/changelog/v1/v1_3_create_table_org_form.xml
   - include:
       file: db/changelog/v1/v1_4_create_table_contractor.xml
+  - include:
+      file: db/changelog/v1/v1_5_create_table_outbox.xml
+  - include:
+      file: db/changelog/v1/v1_6_create_table_shedlock.xml

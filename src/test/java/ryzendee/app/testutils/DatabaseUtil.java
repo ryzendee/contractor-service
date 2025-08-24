@@ -13,10 +13,14 @@ import ryzendee.app.model.Contractor;
 import ryzendee.app.model.Country;
 import ryzendee.app.model.Industry;
 import ryzendee.app.model.OrgForm;
+import ryzendee.app.model.Outbox;
+import ryzendee.app.repository.OutboxRepository;
 import ryzendee.app.repository.ContractorRepository;
 import ryzendee.app.repository.CountryRepository;
 import ryzendee.app.repository.IndustryRepository;
 import ryzendee.app.repository.OrgFormRepository;
+
+import java.util.List;
 
 public class DatabaseUtil {
 
@@ -30,6 +34,8 @@ public class DatabaseUtil {
     private OrgFormRepository orgFormRepository;
     @Autowired
     private ContractorRepository contractorRepository;
+    @Autowired
+    private OutboxRepository outboxRepository;
 
     public Country insert(Country country) {
         return countryRepository.save(country);
@@ -61,6 +67,10 @@ public class DatabaseUtil {
 
     public ContractorDetails findContractorById(String id) {
         return contractorRepository.findDetailsById(id).orElse(null);
+    }
+
+    public List<Outbox> findAllPendingOutboxes(int limit) {
+        return outboxRepository.findAllPendingSortByCreatedDate(limit);
     }
 
     public void cleanDatabase() {

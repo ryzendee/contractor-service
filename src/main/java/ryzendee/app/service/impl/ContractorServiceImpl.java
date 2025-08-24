@@ -3,6 +3,7 @@ package ryzendee.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ryzendee.app.common.dto.ContractorUpdateEvent;
 import ryzendee.app.dto.contractor.ContractorDetails;
 import ryzendee.app.dto.contractor.ContractorSaveRequest;
 import ryzendee.app.dto.contractor.ContractorSaveResponse;
@@ -10,6 +11,8 @@ import ryzendee.app.dto.contractor.ContractorSearchFilter;
 import ryzendee.app.exception.ResourceNotFoundException;
 import ryzendee.app.mapper.ContractorAppMapper;
 import ryzendee.app.model.Contractor;
+import ryzendee.app.mapper.ContractorEventMapper;
+import ryzendee.app.service.helper.OutboxHelper;
 import ryzendee.app.repository.ContractorRepository;
 import ryzendee.app.service.ContractorService;
 
@@ -21,12 +24,18 @@ public class ContractorServiceImpl implements ContractorService {
 
     private final ContractorRepository contractorRepository;
     private final ContractorAppMapper contractorAppMapper;
+    private final ContractorEventMapper contractorEventMapper;
+    private final OutboxHelper outboxHelper;
 
     @Transactional
     @Override
     public ContractorSaveResponse saveOrUpdateContractor(ContractorSaveRequest request) {
         Contractor contractor = contractorAppMapper.toModel(request);
         contractorRepository.save(contractor);
+
+        ContractorUpdateEvent event = contractorEventMapper.toUpdateEvent(contractor);
+        outboxHelper.save(event);
+
         return contractorAppMapper.toSaveResponse(contractor);
     }
 
