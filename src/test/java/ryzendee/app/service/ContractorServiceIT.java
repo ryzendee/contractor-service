@@ -26,14 +26,8 @@ public class ContractorServiceIT extends AbstractServiceIT {
 
     @Autowired
     private ContractorRepository contractorRepository;
-    @Autowired
-    private DatabaseUtil databaseUtil;
-    private Contractor contractor;
 
-    @BeforeAll
-    static void startContainer() {
-        postgresContainer.start();
-    }
+    private Contractor contractor;
 
     @BeforeEach
     void setUp() {

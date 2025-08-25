@@ -42,3 +42,7 @@ outbox:
     fixed-delay-ms: 5000
     initial-delay-ms: 1000
     batch-size: 50
+
+cache:
+  metadata:
+    ttl: 3600s

@@ -9,14 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import ryzendee.app.AbstractTestcontainers;
 import ryzendee.app.common.dto.ContractorUpdateEvent;
 import ryzendee.app.model.Outbox;
+import ryzendee.app.testutils.testcontainers.EnableTestcontainers;
 
 import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DirtiesContext
+@EnableTestcontainers
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.NONE,
         classes = {
@@ -25,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
                 RabbitPublisherTestConfig.class
         }
 )
-public class ContractorUpdateEventPublisherIT extends AbstractTestcontainers {
+public class ContractorUpdateEventPublisherIT {
 
     private static final int TIMEOUT_MS = 5000;
 
@@ -36,11 +37,6 @@ public class ContractorUpdateEventPublisherIT extends AbstractTestcontainers {
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private ObjectMapper objectMapper;
-
-    @BeforeAll
-    static void startContainer() {
-        rabbitMQContainer.start();
-    }
 
     @Test
     void send_shouldSend() throws JsonProcessingException {

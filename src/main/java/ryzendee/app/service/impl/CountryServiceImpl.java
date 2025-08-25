@@ -1,6 +1,8 @@
 package ryzendee.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ryzendee.app.dto.country.CountryDetails;
@@ -13,6 +15,8 @@ import ryzendee.app.service.CountryService;
 
 import java.util.List;
 
+import static ryzendee.app.constants.CacheNameConstants.COUNTRY_METADATA;
+
 @Service
 @RequiredArgsConstructor
 public class CountryServiceImpl implements CountryService {
@@ -21,6 +25,7 @@ public class CountryServiceImpl implements CountryService {
     private final CountryRepository countryRepository;
 
     @Transactional
+    @CacheEvict(value = COUNTRY_METADATA, key = "'all'")
     @Override
     public CountryDetails saveOrUpdate(CountrySaveRequest request) {
         Country country = countryAppMapper.toModel(request);
@@ -36,6 +41,7 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Transactional
+    @CacheEvict(value = COUNTRY_METADATA, key = "'all'")
     @Override
     public void deleteById(String id) {
         if (!countryRepository.deleteById(id)) {
@@ -44,6 +50,7 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = COUNTRY_METADATA, key = "'all'")
     @Override
     public List<CountryDetails> getAll() {
         return countryRepository.findAll();

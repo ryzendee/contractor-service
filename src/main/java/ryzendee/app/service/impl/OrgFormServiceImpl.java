@@ -1,6 +1,8 @@
 package ryzendee.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ryzendee.app.dto.orgform.OrgFormDetails;
@@ -13,6 +15,8 @@ import ryzendee.app.service.OrgFormService;
 
 import java.util.List;
 
+import static ryzendee.app.constants.CacheNameConstants.ORG_FORM_METADATA;
+
 @Service
 @RequiredArgsConstructor
 public class OrgFormServiceImpl implements OrgFormService {
@@ -21,6 +25,7 @@ public class OrgFormServiceImpl implements OrgFormService {
     private final OrgFormRepository orgFormRepository;
 
     @Transactional
+    @CacheEvict(value = ORG_FORM_METADATA, key = "'all'")
     @Override
     public OrgFormDetails saveOrUpdate(OrgFormSaveRequest request) {
         OrgForm orgForm = orgFormAppMapper.toModel(request);
@@ -36,6 +41,7 @@ public class OrgFormServiceImpl implements OrgFormService {
     }
 
     @Transactional
+    @CacheEvict(value = ORG_FORM_METADATA, key = "'all'")
     @Override
     public void deleteById(Integer id) {
         if (!orgFormRepository.deleteById(id)) {
@@ -44,6 +50,7 @@ public class OrgFormServiceImpl implements OrgFormService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = ORG_FORM_METADATA, key = "'all'")
     @Override
     public List<OrgFormDetails> getAll() {
         return orgFormRepository.findAll();

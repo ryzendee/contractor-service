@@ -3,16 +3,22 @@ package ryzendee.app.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
 import ryzendee.app.dto.country.CountryDetails;
 import ryzendee.app.dto.country.CountrySaveRequest;
 import ryzendee.app.exception.ResourceNotFoundException;
 import ryzendee.app.model.Country;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static ryzendee.app.testutils.FixtureUtil.countryFixture;
+import static ryzendee.app.constants.CacheNameConstants.COUNTRY_METADATA;
+import static ryzendee.app.testutils.FixtureUtil.*;
 
 public class CountryServiceIT extends AbstractServiceIT {
+
+    private static final String CACHE_KEY = "all";
 
     @Autowired
     private CountryService countryService;
@@ -22,15 +28,13 @@ public class CountryServiceIT extends AbstractServiceIT {
     @BeforeEach
     void setUp() {
         databaseUtil.cleanDatabase();
+        cacheUtil.clearCache(COUNTRY_METADATA);
         country = databaseUtil.insert(countryFixture());
     }
 
     @Test
     void saveOrUpdate_nonExistsCountry_shouldSaveInDb() {
-        CountrySaveRequest request = CountrySaveRequest.builder()
-                .id("new-country-id")
-                .name("New Country")
-                .build();
+        CountrySaveRequest request = countrySaveRequestFixture();
 
         CountryDetails saved = countryService.saveOrUpdate(request);
 
@@ -81,4 +85,39 @@ public class CountryServiceIT extends AbstractServiceIT {
                 .isInstanceOf(ResourceNotFoundException.class);
     }
 
+    @Test
+    void getAll_withoutCachedCountries_shouldPutCountriesInCache() {
+        // Act
+        List<CountryDetails> countries = countryService.getAll();
+        countries = countryService.getAll();
+
+        // Assert
+        Cache.ValueWrapper cachedValue = cacheUtil.getFromCache(COUNTRY_METADATA, CACHE_KEY);
+        assertThat(cachedValue).isNotNull();
+        assertThat(cachedValue.get()).isInstanceOf(List.class);
+
+        List<CountryDetails> cachedDetails = (List<CountryDetails>) cachedValue.get();
+        assertThat(cachedDetails).containsExactlyElementsOf(countries);
+    }
+
+    @Test
+    void saveOrUpdate_withCachedCountries_shouldClearCache() {
+        cacheUtil.putInCache(COUNTRY_METADATA, CACHE_KEY, List.of(countryDetailsFixture()));
+        CountrySaveRequest request = countrySaveRequestFixture();
+
+        countryService.saveOrUpdate(request);
+
+        Cache.ValueWrapper cachedValue = cacheUtil.getFromCache(COUNTRY_METADATA, CACHE_KEY);
+        assertThat(cachedValue).isNull();
+    }
+
+    @Test
+    void deleteById_withCachedCountries_shouldClearCache() {
+        cacheUtil.putInCache(COUNTRY_METADATA, CACHE_KEY, List.of(countryDetailsFixture()));
+
+        countryService.deleteById(country.getId());
+
+        Cache.ValueWrapper cachedValue = cacheUtil.getFromCache(COUNTRY_METADATA, CACHE_KEY);
+        assertThat(cachedValue).isNull();
+    }
 }

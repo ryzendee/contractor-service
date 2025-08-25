@@ -1,6 +1,8 @@
 package ryzendee.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ryzendee.app.dto.industry.IndustryDetails;
@@ -13,6 +15,8 @@ import ryzendee.app.service.IndustryService;
 
 import java.util.List;
 
+import static ryzendee.app.constants.CacheNameConstants.INDUSTRY_METADATA;
+
 @Service
 @RequiredArgsConstructor
 public class IndustryServiceImpl implements IndustryService {
@@ -21,6 +25,7 @@ public class IndustryServiceImpl implements IndustryService {
     private final IndustryRepository industryRepository;
 
     @Transactional
+    @CacheEvict(value = INDUSTRY_METADATA, key = "'all'")
     @Override
     public IndustryDetails saveOrUpdate(IndustrySaveRequest request) {
         Industry industry = industryAppMapper.toModel(request);
@@ -36,6 +41,7 @@ public class IndustryServiceImpl implements IndustryService {
     }
 
     @Transactional
+    @CacheEvict(value = INDUSTRY_METADATA, key = "'all'")
     @Override
     public void deleteById(Integer id) {
         if (!industryRepository.deleteById(id)) {
@@ -44,6 +50,7 @@ public class IndustryServiceImpl implements IndustryService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = INDUSTRY_METADATA, key = "'all'")
     @Override
     public List<IndustryDetails> getAll() {
         return industryRepository.findAll();

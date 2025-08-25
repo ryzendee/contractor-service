@@ -3,16 +3,22 @@ package ryzendee.app.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
 import ryzendee.app.dto.orgform.OrgFormDetails;
 import ryzendee.app.dto.orgform.OrgFormSaveRequest;
 import ryzendee.app.exception.ResourceNotFoundException;
 import ryzendee.app.model.OrgForm;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static ryzendee.app.testutils.FixtureUtil.orgFormFixture;
+import static ryzendee.app.constants.CacheNameConstants.ORG_FORM_METADATA;
+import static ryzendee.app.testutils.FixtureUtil.*;
 
 public class OrgFormServiceIT extends AbstractServiceIT {
+
+    private static final String CACHE_KEY = "all";
 
     @Autowired
     private OrgFormService orgFormService;
@@ -23,6 +29,7 @@ public class OrgFormServiceIT extends AbstractServiceIT {
     void setUp() {
         databaseUtil.cleanDatabase();
         orgForm = databaseUtil.insert(orgFormFixture());
+        cacheUtil.clearCache(ORG_FORM_METADATA);
     }
 
     @Test
@@ -78,5 +85,41 @@ public class OrgFormServiceIT extends AbstractServiceIT {
     void deleteById_nonExistsOrgForm_shouldThrow() {
         assertThatThrownBy(() -> orgFormService.deleteById(-1))
                 .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void getAll_withoutCachedCountries_shouldPutCountriesInCache() {
+        // Act
+        List<OrgFormDetails> orgForms = orgFormService.getAll();
+        orgForms = orgFormService.getAll();
+
+        // Assert
+        Cache.ValueWrapper cachedValue = cacheUtil.getFromCache(ORG_FORM_METADATA, CACHE_KEY);
+        assertThat(cachedValue).isNotNull();
+        assertThat(cachedValue.get()).isInstanceOf(List.class);
+
+        List<OrgFormDetails> cachedDetails = (List<OrgFormDetails>) cachedValue.get();
+        assertThat(cachedDetails).containsExactlyElementsOf(orgForms);
+    }
+
+    @Test
+    void saveOrUpdate_withCachedCountries_shouldClearCache() {
+        cacheUtil.putInCache(ORG_FORM_METADATA, CACHE_KEY, List.of(orgFormDetailsFixture()));
+        OrgFormSaveRequest request = orgFormSaveRequestFixture();
+
+        orgFormService.saveOrUpdate(request);
+
+        Cache.ValueWrapper cachedValue = cacheUtil.getFromCache(ORG_FORM_METADATA, CACHE_KEY);
+        assertThat(cachedValue).isNull();
+    }
+
+    @Test
+    void deleteById_withCachedCountries_shouldClearCache() {
+        cacheUtil.putInCache(ORG_FORM_METADATA, CACHE_KEY, List.of(orgFormDetailsFixture()));
+
+        orgFormService.deleteById(orgForm.getId());
+
+        Cache.ValueWrapper cachedValue = cacheUtil.getFromCache(ORG_FORM_METADATA, CACHE_KEY);
+        assertThat(cachedValue).isNull();
     }
 }

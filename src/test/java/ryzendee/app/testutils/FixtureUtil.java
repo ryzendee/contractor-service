@@ -2,10 +2,14 @@ package ryzendee.app.testutils;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import ryzendee.app.dto.contractor.ContractorDetails;
 import ryzendee.app.dto.contractor.ContractorSaveRequest;
 import ryzendee.app.dto.contractor.ContractorSearchFilter;
+import ryzendee.app.dto.country.CountryDetails;
 import ryzendee.app.dto.country.CountrySaveRequest;
+import ryzendee.app.dto.industry.IndustryDetails;
 import ryzendee.app.dto.industry.IndustrySaveRequest;
+import ryzendee.app.dto.orgform.OrgFormDetails;
 import ryzendee.app.dto.orgform.OrgFormSaveRequest;
 import ryzendee.app.model.Contractor;
 import ryzendee.app.model.Country;
@@ -16,7 +20,25 @@ import ryzendee.starter.jwt.decoder.AuthRole;
 
 import java.util.List;
 
+/**
+ * Утилита для тестов, упрощающая создание и подготовку
+ * объектов и DTO для использования в тестах.
+ *
+ * @author Dmitry Ryazantsev
+ */
 public class FixtureUtil {
+
+    public static OrgFormDetails orgFormDetailsFixture() {
+        return new OrgFormDetails(1, "name");
+    }
+
+    public static IndustryDetails industryDetailsFixture() {
+        return new IndustryDetails(1, "name");
+    }
+
+    public static CountryDetails countryDetailsFixture() {
+        return new CountryDetails("id", "name");
+    }
 
     public static OrgFormSaveRequest orgFormSaveRequestFixture() {
         return new OrgFormSaveRequest(1, "name");
