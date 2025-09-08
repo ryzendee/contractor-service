@@ -30,6 +30,7 @@
         <common.version>1.0-SNAPSHOT</common.version>
         <shedlock-spring.version>6.9.2</shedlock-spring.version>
         <spring-stater-audit.version>0.0.1-SNAPSHOT</spring-stater-audit.version>
+        <testcontainers-redis.version>2.2.2</testcontainers-redis.version>
     </properties>
     <dependencies>
         <dependency>
@@ -157,6 +158,20 @@
             <groupId>ryzendee</groupId>
             <artifactId>spring-boot-starter-audit</artifactId>
             <version>${spring-stater-audit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.redis</groupId>
+            <artifactId>testcontainers-redis</artifactId>
+            <version>${testcontainers-redis.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

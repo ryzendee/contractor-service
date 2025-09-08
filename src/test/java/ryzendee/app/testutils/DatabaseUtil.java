@@ -22,6 +22,11 @@ import ryzendee.app.repository.OrgFormRepository;
 
 import java.util.List;
 
+/**
+ * Утилита для тестов, упрощающая работу с базой данных
+ *
+ * @author Dmitry Ryazantsev
+ */
 public class DatabaseUtil {
 
     @Autowired
